@@ -7,7 +7,7 @@ import { CodeBlock } from './components/CodeBlock';
 import { Playground } from './components/Playground';
 import { PROMPT_EXAMPLES } from './constants';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { ArrowRight, CheckCircle, Users, Sparkles, BrainCircuit, ShieldCheck, GraduationCap, Clock, Target, Zap, MessageSquare } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Sparkles, BrainCircuit, ShieldCheck, GraduationCap, Clock, Target, Zap, MessageSquare, GitMerge, ScanEye, Fingerprint, AlertTriangle } from 'lucide-react';
 
 type ViewState = 'home' | 'playground';
 
@@ -73,12 +73,12 @@ export default function App() {
               <Section id="philosophy" title="What does it mean to think?" subtitle="It's not just about getting the answer." darker>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                     {[
-                      { title: "Synthesis", desc: "Combining disparate information into a new, unique understanding.", icon: "🔗" },
-                      { title: "Critical Analysis", desc: "Questioning the validity of information, not just accepting it.", icon: "🧐" },
-                      { title: "Original Voice", desc: "Expressing ideas through your unique perspective and experience.", icon: "🗣️" }
+                      { title: "Synthesis", desc: "Combining disparate information into a new, unique understanding.", icon: <GitMerge className="w-10 h-10 text-brand-600" /> },
+                      { title: "Critical Analysis", desc: "Questioning the validity of information, not just accepting it.", icon: <ScanEye className="w-10 h-10 text-brand-600" /> },
+                      { title: "Original Voice", desc: "Expressing ideas through your unique perspective and experience.", icon: <Fingerprint className="w-10 h-10 text-brand-600" /> }
                     ].map((card, idx) => (
                       <div key={idx} className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-                        <div className="text-4xl mb-6">{card.icon}</div>
+                        <div className="mb-6 p-3 bg-brand-50 w-fit rounded-2xl">{card.icon}</div>
                         <h3 className="text-xl font-bold text-stone-900 mb-3">{card.title}</h3>
                         <p className="text-stone-600 leading-relaxed font-light">{card.desc}</p>
                       </div>
@@ -103,7 +103,8 @@ export default function App() {
                     </p>
                     <div className="p-6 bg-red-50/50 border-l-4 border-red-400 rounded-r-2xl">
                       <p className="text-red-900 font-medium flex items-center gap-2">
-                        <span>⚠️</span> Risk: Cognitive Atrophy
+                        <AlertTriangle className="w-5 h-5" />
+                        Risk: Cognitive Atrophy
                       </p>
                       <p className="text-red-800/70 text-sm mt-1">We outsource the struggle, but the struggle is where the learning happens.</p>
                     </div>

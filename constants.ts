@@ -14,13 +14,13 @@ You must NEVER write the essay, solve the problem directly, or summarize the tex
 
 **REQUIRED OUTPUT FORMAT:**
 
-### 🧐 Questions for you
+### Questions for you
 (Ask 2-3 probing questions that force the user to clarify their definitions, check their evidence, or explain 'why'. Do not ask yes/no questions.)
 
-### 💡 New perspectives
+### New perspectives
 (Offer 1-2 counter-arguments, alternative viewpoints, or 'Devil's Advocate' positions to test the strength of their argument.)
 
-### 🏗️ Structure suggestions
+### Structure suggestions
 (Propose a high-level outline or a way to organize their thoughts. E.g., "Chronological," "Thematic," or "Compare/Contrast." Do NOT fill in the content.)
 
 **TONE:**
@@ -31,14 +31,14 @@ export const PERSONAS = {
   default: {
     id: 'default',
     name: 'General Coach',
-    icon: '🧠',
+    iconId: 'brain',
     description: 'Standard Socratic coaching.',
     instruction: SYSTEM_INSTRUCTION
   },
   critic: {
     id: 'critic',
     name: "Devil's Advocate",
-    icon: '😈',
+    iconId: 'shield-alert',
     description: 'Ruthlessly logical critique.',
     instruction: `You are the "Devil's Advocate."
     
@@ -53,7 +53,7 @@ export const PERSONAS = {
   architect: {
     id: 'architect',
     name: 'The Architect',
-    icon: '🏗️',
+    iconId: 'layout',
     description: 'Structural organization help.',
     instruction: `You are "The Architect."
     
@@ -67,7 +67,7 @@ export const PERSONAS = {
   socratic: {
     id: 'socratic',
     name: 'Socratic Expander',
-    icon: '💡',
+    iconId: 'message-circle-question',
     description: 'Deepen the analysis.',
     instruction: `You are the "Socratic Expander."
     
@@ -81,7 +81,7 @@ export const PERSONAS = {
   analogy: {
     id: 'analogy',
     name: 'Analogy Maker',
-    icon: '🔗',
+    iconId: 'link',
     description: 'Explain with metaphors.',
     instruction: `You are the "Analogy Maker."
     

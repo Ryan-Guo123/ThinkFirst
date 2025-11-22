@@ -5,8 +5,8 @@ import { ChatMessage, Role } from '../types';
 import { PromptInputBox } from './ui/ai-prompt-box';
 import { Content } from '@google/genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink } from 'lucide-react';
-import { PersonaKey } from '../constants';
+import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Sparkles, Bot } from 'lucide-react';
+import { PersonaKey, PERSONAS } from '../constants';
 import ReactMarkdown from 'react-markdown';
 
 // --- Types for Storage ---
@@ -20,6 +20,19 @@ interface ChatSession {
 
 const STORAGE_KEY = 'thinkfirst_chats';
 
+// Helper for Persona Icons
+export const getPersonaIcon = (iconId: string, className?: string) => {
+  const props = { className: className || "w-5 h-5" };
+  switch (iconId) {
+    case 'brain': return <Brain {...props} />;
+    case 'shield-alert': return <ShieldAlert {...props} />;
+    case 'layout': return <Layout {...props} />;
+    case 'message-circle-question': return <MessageCircleQuestion {...props} />;
+    case 'link': return <LinkIcon {...props} />;
+    default: return <Brain {...props} />;
+  }
+};
+
 // Optimized Markdown Content with better code styling
 const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ content, className = "" }) => {
     return (
@@ -31,9 +44,9 @@ const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ co
                   <div className="my-4 rounded-lg overflow-hidden bg-stone-50 border border-stone-200 shadow-sm">
                     <div className="flex items-center px-4 py-2 bg-stone-100/50 border-b border-stone-200">
                       <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
                       </div>
                     </div>
                     <pre className="p-4 overflow-x-auto text-sm text-stone-800 font-mono" {...props} />
@@ -100,36 +113,31 @@ const FormattedMessage: React.FC<{ message: ChatMessage }> = ({ message }) => {
         {sections.map((section, idx) => {
           const [titleLine, ...contentArr] = section.split('\n');
           
-          // Strip existing markdown hashes, whitespace, AND specific emojis
-          const cleanTitle = titleLine
-            .replace(/^[#\s]+/, '')
-            .replace(/^(🧐|💡|🏗️)\s*/, '')
-            .trim();
-
+          const cleanTitle = titleLine.trim();
           const cleanContent = contentArr.join('\n').trim();
           
           if (!cleanTitle && !cleanContent) return null;
 
-          let icon = '';
+          let Icon = Sparkles;
           let titleColor = 'text-stone-800';
           let bgColor = 'bg-white';
           let borderColor = 'border-stone-200';
           
-          if (titleLine.includes('Questions')) {
-            icon = '🧐';
-            titleColor = 'text-pastel-redDark';
-            bgColor = 'bg-pastel-red/30'; 
-            borderColor = 'border-pastel-red';
-          } else if (titleLine.includes('New perspectives')) {
-             icon = '💡';
-             titleColor = 'text-pastel-yellowDark';
-             bgColor = 'bg-pastel-yellow/30';
-             borderColor = 'border-pastel-yellow';
-          } else if (titleLine.includes('Structure')) {
-             icon = '🏗️';
-             titleColor = 'text-pastel-blueDark';
-             bgColor = 'bg-pastel-blue/30';
-             borderColor = 'border-pastel-blue';
+          if (cleanTitle.toLowerCase().includes('questions')) {
+            Icon = MessageCircleQuestion;
+            titleColor = 'text-brand-700';
+            bgColor = 'bg-brand-50/50'; 
+            borderColor = 'border-brand-100';
+          } else if (cleanTitle.toLowerCase().includes('perspectives')) {
+             Icon = Sparkles;
+             titleColor = 'text-amber-700';
+             bgColor = 'bg-amber-50/50';
+             borderColor = 'border-amber-100';
+          } else if (cleanTitle.toLowerCase().includes('structure')) {
+             Icon = Layout;
+             titleColor = 'text-emerald-700';
+             bgColor = 'bg-emerald-50/50';
+             borderColor = 'border-emerald-100';
           }
 
           return (
@@ -140,8 +148,8 @@ const FormattedMessage: React.FC<{ message: ChatMessage }> = ({ message }) => {
               key={idx} 
               className={`p-5 rounded-2xl border-l-4 ${bgColor} ${borderColor} bg-opacity-50`}
             >
-              <h4 className={`font-bold text-lg mb-2 flex items-center gap-3 ${titleColor}`}>
-                <span className="text-2xl">{icon}</span> {cleanTitle}
+              <h4 className={`font-bold text-lg mb-2 flex items-center gap-2 ${titleColor}`}>
+                <Icon className="w-5 h-5" /> {cleanTitle}
               </h4>
               <div className="text-stone-800 text-base leading-relaxed">
                  <MarkdownContent content={cleanContent} />
@@ -430,7 +438,14 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                   `}
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <MessageSquare size={16} className={currentSessionId === session.id ? 'text-brand-500' : 'text-stone-400'} />
+                    {/* Use the persona icon for the chat session if available, else MessageSquare */}
+                    {session.persona ? (
+                       <span className={currentSessionId === session.id ? 'text-brand-600' : 'text-stone-400'}>
+                         {getPersonaIcon(PERSONAS[session.persona]?.iconId, "w-4 h-4")}
+                       </span>
+                    ) : (
+                       <MessageSquare size={16} className={currentSessionId === session.id ? 'text-brand-500' : 'text-stone-400'} />
+                    )}
                     <span className="truncate text-sm font-medium">{session.title || 'New Chat'}</span>
                   </div>
                   <button 
@@ -519,6 +534,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
           {isLoading && (
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start w-full pl-2">
                <div className="px-4 py-3 rounded-2xl bg-white border border-stone-100 shadow-sm inline-flex items-center gap-3">
+                 <Bot className="w-4 h-4 text-stone-400" />
                  <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Thinking</span>
                  <div className="flex space-x-1">
                    <div className="w-1.5 h-1.5 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

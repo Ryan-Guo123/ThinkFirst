@@ -3,11 +3,24 @@ import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown } from "lucide-react";
+import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PERSONAS, PersonaKey } from "../../constants";
 
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
+
+// Helper to render icon from ID
+const PersonaIcon = ({ iconId, className }: { iconId: string, className?: string }) => {
+  const props = { className: className || "w-5 h-5" };
+  switch (iconId) {
+    case 'brain': return <Brain {...props} />;
+    case 'shield-alert': return <ShieldAlert {...props} />;
+    case 'layout': return <Layout {...props} />;
+    case 'message-circle-question': return <MessageCircleQuestion {...props} />;
+    case 'link': return <LinkIcon {...props} />;
+    default: return <Brain {...props} />;
+  }
+};
 
 const styles = `
   textarea::-webkit-scrollbar {
@@ -269,7 +282,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                     />
                     <button
                       onClick={() => removeFile(idx)}
-                      className="absolute top-1 right-1 bg-white/90 text-stone-500 rounded-full p-0.5 shadow-sm border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      className="absolute top-1 right-1 top-1 right-1 bg-white/90 text-stone-500 rounded-full p-0.5 shadow-sm border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -308,7 +321,9 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                   <button
                     className="flex items-center gap-1.5 p-2 rounded-full text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-stone-200"
                   >
-                    <span className="text-lg">{PERSONAS[selectedPersona].icon}</span>
+                    <span className="text-lg text-brand-600">
+                       <PersonaIcon iconId={PERSONAS[selectedPersona].iconId} />
+                    </span>
                     <span className="hidden sm:inline">{PERSONAS[selectedPersona].name}</span>
                     <ChevronDown className="w-3 h-3 opacity-50" />
                   </button>
@@ -324,7 +339,9 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                                   selectedPersona === key ? "bg-brand-50 text-brand-700" : "hover:bg-stone-50 text-stone-700"
                               )}
                           >
-                              <span className="text-xl mt-0.5">{persona.icon}</span>
+                              <span className="mt-0.5 text-brand-600">
+                                <PersonaIcon iconId={persona.iconId} className="w-5 h-5" />
+                              </span>
                               <div>
                                   <div className="font-semibold text-sm">{persona.name}</div>
                                   <div className="text-[10px] text-stone-500 leading-tight mt-0.5">{persona.description}</div>

@@ -1,7 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { MoveRight, Play, Sparkles, ArrowDown } from "lucide-react";
+import { MoveRight, Play, Sparkles, ArrowDown, Brain, Bot, PenTool } from "lucide-react";
 import { Button } from "./button";
 
 interface HeroProps {
@@ -175,29 +175,34 @@ function Hero({ onStart, onLearnMore }: HeroProps) {
             className="mt-24 w-full max-w-5xl px-4"
           >
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-lg hover:border-pastel-yellow/50 transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-14 h-14 rounded-2xl bg-pastel-yellow/50 flex items-center justify-center mb-6 text-3xl group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    🧠
+                
+                {/* Step 1 */}
+                <div className="group flex flex-col p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-lg hover:border-amber-200 transition-all duration-300 hover:-translate-y-1 h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                    <Brain className="w-8 h-8 text-amber-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-yellow-700 transition-colors">1. My Brain First</h3>
-                  <p className="text-stone-500 leading-relaxed font-light">Formulate your own thesis or rough ideas before opening the tool.</p>
+                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-amber-700 transition-colors">1. My Brain First</h3>
+                  <p className="text-stone-500 leading-relaxed font-light flex-grow">Formulate your own thesis or rough ideas before opening the tool.</p>
                 </div>
 
-                <div className="group p-8 bg-white rounded-[2rem] border border-stone-100 shadow-lg relative md:-top-6 hover:shadow-xl hover:border-pastel-red/50 transition-all duration-300 hover:-translate-y-1 z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-pastel-red/50 flex items-center justify-center mb-6 text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                    🤖
+                {/* Step 2 */}
+                <div className="group flex flex-col p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-lg hover:border-rose-200 transition-all duration-300 hover:-translate-y-1 h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                    <Bot className="w-8 h-8 text-rose-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-red-700 transition-colors">2. AI's Turn</h3>
-                  <p className="text-stone-500 leading-relaxed font-light">Ask for critiques, structure, and counter-arguments. <strong className="font-medium text-red-400">Never answers.</strong></p>
+                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-rose-700 transition-colors">2. AI's Turn</h3>
+                  <p className="text-stone-500 leading-relaxed font-light flex-grow">Ask for critiques, structure, and counter-arguments. <strong className="font-medium text-rose-500">Never answers.</strong></p>
                 </div>
 
-                <div className="group p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-lg hover:border-pastel-blue/50 transition-all duration-300 hover:-translate-y-1">
-                  <div className="w-14 h-14 rounded-2xl bg-pastel-blue/50 flex items-center justify-center mb-6 text-3xl group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    ✍️
+                {/* Step 3 */}
+                <div className="group flex flex-col p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-lg hover:border-sky-200 transition-all duration-300 hover:-translate-y-1 h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-sky-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                    <PenTool className="w-8 h-8 text-sky-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-blue-700 transition-colors">3. My Brain Last</h3>
-                  <p className="text-stone-500 leading-relaxed font-light">Synthesize the feedback and write the final work yourself.</p>
+                  <h3 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-sky-700 transition-colors">3. My Brain Last</h3>
+                  <p className="text-stone-500 leading-relaxed font-light flex-grow">Synthesize the feedback and write the final work yourself.</p>
                 </div>
+
              </div>
              
              <div className="flex justify-center mt-12">
