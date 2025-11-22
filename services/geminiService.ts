@@ -43,12 +43,20 @@ interface ChatConfigOptions {
   history?: Content[];
 }
 
+interface StreamUpdate {
+  text?: string;
+  groundingMetadata?: {
+    web?: { uri: string; title: string }[];
+    maps?: { uri: string; title: string }[];
+  };
+}
+
 // Re-creates a chat session preserving history but updating tools/config
 export const streamChatResponse = async (
   message: string,
   files: File[],
   options: ChatConfigOptions,
-  onChunk: (text: string) => void
+  onChunk: (update: StreamUpdate) => void
 ): Promise<void> => {
   const ai = getAI();
   
@@ -91,8 +99,27 @@ export const streamChatResponse = async (
     
     for await (const chunk of resultStream) {
       const c = chunk as GenerateContentResponse;
+      
+      const update: StreamUpdate = {};
+      
       if (c.text) {
-        onChunk(c.text);
+        update.text = c.text;
+      }
+
+      // Extract grounding chunks if available
+      if (c.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+        const chunks = c.candidates[0].groundingMetadata.groundingChunks;
+        const webSources = chunks
+          .filter((c: any) => c.web)
+          .map((c: any) => c.web);
+        
+        if (webSources.length > 0) {
+          update.groundingMetadata = { web: webSources };
+        }
+      }
+
+      if (update.text || update.groundingMetadata) {
+        onChunk(update);
       }
     }
   } catch (error) {

@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MoveRight, Play, Sparkles, ArrowDown } from "lucide-react";
@@ -148,7 +149,7 @@ function Hero({ onStart, onLearnMore }: HeroProps) {
           >
             <Button 
               size="lg" 
-              className="h-14 px-8 rounded-full text-lg gap-3 bg-stone-900 hover:bg-stone-800 text-white shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto group" 
+              className="h-14 px-8 rounded-full text-lg gap-3 bg-brand-600 hover:bg-brand-700 text-white shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto group" 
               onClick={onStart}
             >
               Start Thinking

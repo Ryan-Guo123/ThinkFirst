@@ -1,3 +1,4 @@
+
 export enum Role {
   USER = 'user',
   MODEL = 'model'
@@ -9,6 +10,10 @@ export interface ChatMessage {
   text: string;
   timestamp: number;
   isError?: boolean;
+  groundingMetadata?: {
+    web?: { uri: string; title: string }[];
+    maps?: { uri: string; title: string }[];
+  };
 }
 
 export interface PromptExample {

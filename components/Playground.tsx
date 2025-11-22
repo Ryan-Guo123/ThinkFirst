@@ -5,7 +5,7 @@ import { ChatMessage, Role } from '../types';
 import { PromptInputBox } from './ui/ai-prompt-box';
 import { Content } from '@google/genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MessageSquare, Trash2, Menu, X, Home, History } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink } from 'lucide-react';
 import { PersonaKey } from '../constants';
 import ReactMarkdown from 'react-markdown';
 
@@ -20,13 +20,38 @@ interface ChatSession {
 
 const STORAGE_KEY = 'thinkfirst_chats';
 
+// Optimized Markdown Content with better code styling
 const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ content, className = "" }) => {
     return (
         <ReactMarkdown 
-            className={`prose prose-stone max-w-none prose-p:leading-relaxed prose-pre:bg-stone-100 prose-pre:p-4 prose-pre:rounded-lg prose-code:text-brand-600 prose-code:bg-brand-50 prose-code:px-1 prose-code:rounded prose-code:font-normal ${className}`}
+            className={`prose prose-stone max-w-none prose-p:leading-relaxed ${className}`}
             components={{
-                // Override links to open in new tab
                 a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline" {...props} />,
+                pre: ({node, ...props}) => (
+                  <div className="my-4 rounded-lg overflow-hidden bg-stone-50 border border-stone-200 shadow-sm">
+                    <div className="flex items-center px-4 py-2 bg-stone-100/50 border-b border-stone-200">
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
+                      </div>
+                    </div>
+                    <pre className="p-4 overflow-x-auto text-sm text-stone-800 font-mono" {...props} />
+                  </div>
+                ),
+                code: ({node, className, children, ...props}: any) => {
+                  const match = /language-(\w+)/.exec(className || '');
+                  const isInline = !match && !String(children).includes('\n');
+                  return isInline ? (
+                    <code className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-brand-700 font-mono text-sm" {...props}>
+                      {children}
+                    </code>
+                  ) : (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
+                }
             }}
         >
             {content}
@@ -35,7 +60,39 @@ const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ co
 };
 
 // --- Formatting Component ---
-const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
+const FormattedMessage: React.FC<{ message: ChatMessage }> = ({ message }) => {
+  const text = message.text;
+  
+  // Helper to render citations
+  const renderCitations = () => {
+    if (!message.groundingMetadata?.web || message.groundingMetadata.web.length === 0) return null;
+    
+    // Deduplicate URLs
+    const uniqueSources = Array.from(new Map(message.groundingMetadata.web.map(item => [item.uri, item])).values()) as { uri: string; title: string }[];
+
+    return (
+      <div className="mt-4 pt-4 border-t border-stone-200/60">
+        <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <ExternalLink size={10} />
+          Sources
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {uniqueSources.map((source, idx) => (
+            <a 
+              key={idx} 
+              href={source.uri} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-stone-200 hover:border-brand-300 hover:text-brand-700 rounded-md text-xs text-stone-600 transition-all shadow-sm max-w-[200px] truncate"
+            >
+              <span className="truncate max-w-[150px]">{source.title}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (text.includes('###')) {
     const sections = text.split('###').filter(s => s.trim());
     return (
@@ -92,11 +149,17 @@ const FormattedMessage: React.FC<{ text: string }> = ({ text }) => {
             </motion.div>
           );
         })}
+        {renderCitations()}
       </div>
     );
   }
   
-  return <div className="text-base leading-relaxed text-stone-800"><MarkdownContent content={text} /></div>;
+  return (
+    <div className="text-base leading-relaxed text-stone-800">
+      <MarkdownContent content={text} />
+      {renderCitations()}
+    </div>
+  );
 };
 
 interface PlaygroundProps {
@@ -116,6 +179,8 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isAutoScrollEnabled = useRef(true);
 
   // --- Storage Logic ---
   
@@ -199,6 +264,12 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
     setMessages(session.messages);
     setActivePersona(session.persona || 'default'); // Restore persona
     setError(null);
+    // Reset scroll on load
+    setTimeout(() => {
+       if (messagesEndRef.current) {
+         messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+       }
+    }, 10);
   };
 
   const deleteSession = (e: React.MouseEvent, id: string) => {
@@ -216,15 +287,21 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
     }
   };
 
-  // --- Chat Logic ---
+  // --- Chat Logic & Smart Scrolling ---
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      isAutoScrollEnabled.current = isNearBottom;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isAutoScrollEnabled.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]); // Trigger scroll when messages update, but only if allowed
 
   const getHistory = (): Content[] => {
     return messages
@@ -238,6 +315,9 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
   const handleSend = async (input: string, files?: File[], mode: 'default' | 'search' | 'think' = 'default', persona: PersonaKey = 'default') => {
     if ((!input.trim() && (!files || files.length === 0)) || isLoading) return;
     
+    // Enable auto-scroll when user sends a message
+    isAutoScrollEnabled.current = true;
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: Role.USER,
@@ -267,11 +347,22 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
         userMessage.text,
         files || [],
         { mode, persona, history: getHistory() },
-        (chunkText) => {
-          fullText += chunkText;
-          setMessages(prev => prev.map(msg => 
-            msg.id === modelMessageId ? { ...msg, text: fullText } : msg
-          ));
+        (update) => {
+          if (update.text) {
+             fullText += update.text;
+          }
+          
+          setMessages(prev => prev.map(msg => {
+            if (msg.id === modelMessageId) {
+               const updatedMsg = { ...msg, text: fullText };
+               if (update.groundingMetadata) {
+                 // Merge existing sources with new ones if any
+                 updatedMsg.groundingMetadata = update.groundingMetadata;
+               }
+               return updatedMsg;
+            }
+            return msg;
+          }));
         }
       );
       
@@ -316,9 +407,9 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
           <div className="p-4">
             <button 
               onClick={createNewSession}
-              className="w-full flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white py-3 px-4 rounded-xl shadow-sm transition-all duration-200 font-medium"
+              className="w-full flex items-center justify-center gap-2 bg-white hover:bg-stone-50 text-stone-700 hover:text-brand-600 py-3 px-4 rounded-xl shadow-sm border border-stone-200 transition-all duration-200 font-medium group"
             >
-              <Plus size={18} />
+              <Plus size={18} className="text-stone-400 group-hover:text-brand-600 transition-colors" />
               New Chat
             </button>
           </div>
@@ -392,7 +483,11 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 scrollbar-hide">
+        <div 
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 scrollbar-hide"
+        >
           <AnimatePresence initial={false}>
             {messages.map((msg) => (
               <motion.div 
@@ -407,13 +502,13 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                   }`}
                 >
                   {msg.role === Role.USER ? (
-                     <div className="bg-stone-900 text-white px-5 py-3 rounded-2xl rounded-tr-sm shadow-md text-base leading-relaxed">
+                     <div className="bg-white border border-stone-200 shadow-sm text-stone-800 px-5 py-3 rounded-2xl rounded-tr-sm text-base leading-relaxed">
                         <div className="whitespace-pre-wrap">{msg.text}</div>
                      </div>
                   ) : (
                      <div className="text-stone-800 pl-2">
                         {/* Clean output without avatar/logo */}
-                        <FormattedMessage text={msg.text} />
+                        <FormattedMessage message={msg} />
                      </div>
                   )}
                 </div>

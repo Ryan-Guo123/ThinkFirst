@@ -143,7 +143,7 @@ export default function App() {
               variants={sectionVariants}
             >
               <Section id="prompts" title="Example Prompts" subtitle="Swipe to see how to interact with AI productively.">
-                <div className="relative w-full h-[450px] flex items-center justify-center overflow-hidden perspective-1000">
+                <div className="relative w-full h-[450px] flex items-center justify-center perspective-1000">
                     {/* Navigation */}
                     <button 
                         onClick={prevPrompt}
@@ -208,8 +208,12 @@ export default function App() {
                                             <h3 className="text-2xl font-bold mt-3">{prompt.title}</h3>
                                             <p className="text-stone-500 text-sm mt-1">{prompt.description}</p>
                                         </div>
-                                        <div className="p-6 bg-white h-[200px] flex flex-col justify-center">
-                                            <CodeBlock code={prompt.content} label="PROMPT" />
+                                        <div className="p-6 bg-white h-[240px] flex flex-col justify-center">
+                                            <CodeBlock 
+                                                code={prompt.content} 
+                                                label="PROMPT" 
+                                                maxHeight="160px"
+                                            />
                                         </div>
                                     </motion.div>
                                 );
@@ -233,19 +237,19 @@ export default function App() {
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
                     
                     {/* Hero Card */}
-                    <div className="col-span-1 md:col-span-8 bg-stone-900 rounded-[2.5rem] p-10 text-white flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[320px]">
-                      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-brand-600 via-blue-600 to-purple-600 rounded-full blur-[100px] opacity-40 -mr-20 -mt-20 animate-pulse" />
+                    <div className="col-span-1 md:col-span-8 bg-white rounded-[2.5rem] p-10 text-stone-900 flex flex-col justify-between relative overflow-hidden shadow-xl border border-stone-200 min-h-[320px]">
+                      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-brand-50 via-blue-50 to-purple-50 rounded-full blur-[100px] opacity-80 -mr-20 -mt-20 animate-pulse" />
                       <div className="relative z-10">
-                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold mb-8 text-brand-200 border border-white/10 tracking-widest">
+                        <div className="inline-flex items-center gap-2 bg-stone-100/80 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold mb-8 text-brand-700 border border-stone-200 tracking-widest">
                           <ShieldCheck size={14} />
                           <span>ACADEMIC INTEGRITY 2.0</span>
                         </div>
-                        <h3 className="text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
-                          Stop policing. <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-blue-300">Start partnering.</span>
+                        <h3 className="text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tight text-stone-900">
+                          Stop policing. <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-blue-600">Start partnering.</span>
                         </h3>
                       </div>
-                      <p className="relative z-10 text-stone-300 font-light text-lg md:text-xl leading-relaxed max-w-xl">
-                         The future isn't detecting AI. It's integrating it into the process so the <span className="text-white font-medium border-b border-brand-500/50 pb-0.5">dialogue itself</span> becomes the deliverable.
+                      <p className="relative z-10 text-stone-600 font-light text-lg md:text-xl leading-relaxed max-w-xl">
+                         The future isn't detecting AI. It's integrating it into the process so the <span className="text-stone-900 font-medium border-b border-brand-500/50 pb-0.5">dialogue itself</span> becomes the deliverable.
                       </p>
                     </div>
 
@@ -290,7 +294,7 @@ export default function App() {
                        className="col-span-1 md:col-span-2 bg-gradient-to-br from-brand-600 to-blue-600 rounded-[2rem] p-1 text-white cursor-pointer group shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1"
                        onClick={() => handleNavigation('playground')}
                      >
-                        <div className="bg-stone-900/10 h-full w-full rounded-[1.8rem] p-6 flex items-center justify-between backdrop-blur-sm hover:bg-white/10 transition-colors">
+                        <div className="bg-white/10 h-full w-full rounded-[1.8rem] p-6 flex items-center justify-between backdrop-blur-sm hover:bg-white/20 transition-colors">
                              <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md shadow-inner">
                                     <Sparkles size={24} />

@@ -269,7 +269,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                     />
                     <button
                       onClick={() => removeFile(idx)}
-                      className="absolute -top-1.5 -right-1.5 bg-white text-stone-500 rounded-full p-0.5 shadow-md border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      className="absolute top-1 right-1 bg-white/90 text-stone-500 rounded-full p-0.5 shadow-sm border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -404,7 +404,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                         "h-10 w-10 flex items-center justify-center rounded-full shadow-md transition-all",
                         activeMode === 'search' ? "bg-sky-500 hover:bg-sky-600 text-white" :
                         activeMode === 'think' ? "bg-purple-500 hover:bg-purple-600 text-white" :
-                        (input.trim() || files.length > 0) ? "bg-stone-900 hover:bg-stone-800 text-white" : "bg-stone-200 text-stone-400 cursor-not-allowed"
+                        (input.trim() || files.length > 0) ? "bg-brand-600 hover:bg-brand-700 text-white" : "bg-stone-200 text-stone-400 cursor-not-allowed"
                       )}
                     >
                        {isLoading ? (

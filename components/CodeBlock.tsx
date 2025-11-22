@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 interface CodeBlockProps {
   code: string;
   label?: string;
+  className?: string;
+  maxHeight?: string;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label = "PROMPT" }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label = "PROMPT", className = "", maxHeight }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -15,7 +17,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label = "PROMPT" }) 
   };
 
   return (
-    <div className="relative group rounded-xl bg-stone-100 border border-stone-200 overflow-hidden my-4 shadow-sm">
+    <div className={`relative group rounded-xl bg-stone-100 border border-stone-200 overflow-hidden shadow-sm ${className}`}>
       <div className="flex items-center justify-between px-4 py-2 bg-stone-200/50 border-b border-stone-200">
         <span className="text-xs font-bold font-mono text-stone-500 tracking-wider">{label}</span>
         <button 
@@ -36,7 +38,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, label = "PROMPT" }) 
           )}
         </button>
       </div>
-      <div className="p-5 overflow-x-auto bg-white">
+      <div 
+        className="p-5 overflow-auto bg-white"
+        style={{ maxHeight: maxHeight || 'none' }}
+      >
         <pre className="text-sm font-mono text-stone-700 whitespace-pre-wrap leading-relaxed">
           {code}
         </pre>
