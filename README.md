@@ -76,6 +76,13 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
+
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left)](https://www.star-history.com/#Ryan-Guo123/ThinkFirst&type=date&legend=top-left)
+<a href="https://www.star-history.com/#Ryan-Guo123/ThinkFirst&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left" />
+ </picture>
+</a>
