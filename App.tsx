@@ -7,7 +7,7 @@ import { CodeBlock } from './components/CodeBlock';
 import { Playground } from './components/Playground';
 import { PROMPT_EXAMPLES } from './constants';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { ArrowRight, CheckCircle, Users, Sparkles, BrainCircuit, ShieldCheck, GraduationCap, Clock, Target, Zap, MessageSquare, GitMerge, ScanEye, Fingerprint, AlertTriangle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Sparkles, BrainCircuit, ShieldCheck, GraduationCap, Clock, Target, Zap, MessageSquare, GitMerge, ScanEye, Fingerprint, AlertTriangle, Github } from 'lucide-react';
 
 type ViewState = 'home' | 'playground';
 
@@ -331,10 +331,19 @@ export default function App() {
                     </p>
                     </div>
                 </div>
-                <div className="mt-12 pt-8 border-t border-stone-100 text-center">
+                <div className="mt-12 pt-8 border-t border-stone-100 text-center flex justify-center items-center gap-4">
                     <span className="inline-block px-4 py-2 rounded-full bg-stone-50 text-xs font-medium text-stone-400 uppercase tracking-widest border border-stone-100">
                       Made by Ryan Guo
                     </span>
+                    <a 
+                      href="https://github.com/Ryan-Guo123/ThinkFirst" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-stone-300 hover:text-stone-600 transition-colors"
+                      aria-label="View on GitHub"
+                    >
+                      <Github size={20} />
+                    </a>
                 </div>
               </div>
             </footer>
