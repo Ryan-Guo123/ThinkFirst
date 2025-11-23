@@ -76,4 +76,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-*Built with ❤️ using Google Gemini API.*
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left)](https://www.star-history.com/#Ryan-Guo123/ThinkFirst&type=date&legend=top-left)
