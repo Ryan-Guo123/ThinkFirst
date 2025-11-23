@@ -2,8 +2,10 @@
 
 **ThinkFirst** is a cognitive coaching platform that turns AI into a thinking partner, not a homework doer. It emphasizes the **"Brain First -> AI -> Brain Last"** methodology to help students and lifelong learners think deeper.
 
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
+
 
 ## 🌟 Core Philosophy
 
@@ -12,6 +14,9 @@ The problem with most AI usage in education is the "Copy-Paste Trap" — outsour
 1.  **My Brain First**: You must formulate your own thesis or rough ideas before opening the tool.
 2.  **AI's Turn**: The AI acts as a Socratic coach. It critiques, structures, and offers counter-arguments, but **never** writes the content for you.
 3.  **My Brain Last**: You synthesize the feedback and write the final work yourself.
+
+<img width="2090" height="988" alt="image" src="https://github.com/user-attachments/assets/be32cdab-cd52-4800-90d1-500cdba7f32f" />
+
 
 ## ✨ Features
 
