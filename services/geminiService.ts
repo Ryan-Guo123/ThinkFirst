@@ -3,16 +3,31 @@ import { GoogleGenAI, Chat, GenerateContentResponse, Content, Part } from "@goog
 import { SYSTEM_INSTRUCTION, PERSONAS, PersonaKey } from "../constants";
 
 let aiInstance: GoogleGenAI | null = null;
+let currentApiKey: string | null = null;
 
-const getAI = (): GoogleGenAI => {
-  if (!aiInstance) {
-    if (!process.env.API_KEY) {
-      console.error("API_KEY is missing from environment variables.");
-      throw new Error("API Key missing");
+const getAI = (apiKey?: string): GoogleGenAI => {
+  // Priority 1: Provided API Key
+  if (apiKey) {
+    // If key changed or no instance, create new one
+    if (currentApiKey !== apiKey || !aiInstance) {
+      aiInstance = new GoogleGenAI({ apiKey });
+      currentApiKey = apiKey;
     }
-    aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    return aiInstance;
   }
-  return aiInstance;
+
+  // Priority 2: Environment Variable
+  if (process.env.API_KEY) {
+    if (currentApiKey !== process.env.API_KEY || !aiInstance) {
+      aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      currentApiKey = process.env.API_KEY;
+    }
+    return aiInstance;
+  }
+
+  // No key found
+  console.error("API_KEY is missing.");
+  throw new Error("API Key missing");
 };
 
 // Convert files to base64 parts
@@ -41,6 +56,7 @@ interface ChatConfigOptions {
   mode: 'default' | 'search' | 'think';
   persona: PersonaKey;
   history?: Content[];
+  apiKey?: string;
 }
 
 interface StreamUpdate {
@@ -58,7 +74,8 @@ export const streamChatResponse = async (
   options: ChatConfigOptions,
   onChunk: (update: StreamUpdate) => void
 ): Promise<void> => {
-  const ai = getAI();
+  // Initialize AI with optional key
+  const ai = getAI(options.apiKey);
   
   let model = 'gemini-2.5-flash';
   let tools: any[] | undefined;

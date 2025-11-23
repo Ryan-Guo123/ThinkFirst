@@ -5,7 +5,7 @@ import { ChatMessage, Role } from '../types';
 import { PromptInputBox } from './ui/ai-prompt-box';
 import { Content } from '@google/genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Sparkles, Bot } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Sparkles, Bot, Key, ChevronRight } from 'lucide-react';
 import { PersonaKey, PERSONAS } from '../constants';
 import ReactMarkdown from 'react-markdown';
 
@@ -19,6 +19,7 @@ interface ChatSession {
 }
 
 const STORAGE_KEY = 'thinkfirst_chats';
+const API_KEY_STORAGE = 'thinkfirst_api_key';
 
 // Helper for Persona Icons
 export const getPersonaIcon = (iconId: string, className?: string) => {
@@ -36,39 +37,40 @@ export const getPersonaIcon = (iconId: string, className?: string) => {
 // Optimized Markdown Content with better code styling
 const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ content, className = "" }) => {
     return (
-        <ReactMarkdown 
-            className={`prose prose-stone max-w-none prose-p:leading-relaxed ${className}`}
-            components={{
-                a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline" {...props} />,
-                pre: ({node, ...props}) => (
-                  <div className="my-4 rounded-lg overflow-hidden bg-stone-50 border border-stone-200 shadow-sm">
-                    <div className="flex items-center px-4 py-2 bg-stone-100/50 border-b border-stone-200">
-                      <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+        <div className={`prose prose-stone max-w-none prose-p:leading-relaxed ${className}`}>
+            <ReactMarkdown 
+                components={{
+                    a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline" {...props} />,
+                    pre: ({node, ...props}) => (
+                      <div className="my-4 rounded-lg overflow-hidden bg-stone-50 border border-stone-200 shadow-sm">
+                        <div className="flex items-center px-4 py-2 bg-stone-100/50 border-b border-stone-200">
+                          <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-stone-300"></div>
+                          </div>
+                        </div>
+                        <pre className="p-4 overflow-x-auto text-sm text-stone-800 font-mono" {...props} />
                       </div>
-                    </div>
-                    <pre className="p-4 overflow-x-auto text-sm text-stone-800 font-mono" {...props} />
-                  </div>
-                ),
-                code: ({node, className, children, ...props}: any) => {
-                  const match = /language-(\w+)/.exec(className || '');
-                  const isInline = !match && !String(children).includes('\n');
-                  return isInline ? (
-                    <code className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-brand-700 font-mono text-sm" {...props}>
-                      {children}
-                    </code>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                }
-            }}
-        >
-            {content}
-        </ReactMarkdown>
+                    ),
+                    code: ({node, className, children, ...props}: any) => {
+                      const match = /language-(\w+)/.exec(className || '');
+                      const isInline = !match && !String(children).includes('\n');
+                      return isInline ? (
+                        <code className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-brand-700 font-mono text-sm" {...props}>
+                          {children}
+                        </code>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    }
+                }}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
     );
 };
 
@@ -186,13 +188,18 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
+  // API Key State
+  const [userApiKey, setUserApiKey] = useState<string>('');
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState('');
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isAutoScrollEnabled = useRef(true);
 
   // --- Storage Logic ---
   
-  // Load sessions on mount
+  // Load sessions and API key on mount
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -212,6 +219,11 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
     } else {
       createNewSession();
     }
+
+    const storedKey = localStorage.getItem(API_KEY_STORAGE);
+    if (storedKey) {
+      setUserApiKey(storedKey);
+    }
   }, []);
 
   // Save sessions whenever they change
@@ -220,6 +232,15 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
     }
   }, [sessions]);
+
+  const handleSaveApiKey = () => {
+    if (tempApiKey.trim()) {
+      setUserApiKey(tempApiKey.trim());
+      localStorage.setItem(API_KEY_STORAGE, tempApiKey.trim());
+      setIsApiKeyModalOpen(false);
+      setError(null);
+    }
+  };
 
   // Update current session in list when messages or persona change
   useEffect(() => {
@@ -354,7 +375,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
       await streamChatResponse(
         userMessage.text,
         files || [],
-        { mode, persona, history: getHistory() },
+        { mode, persona, history: getHistory(), apiKey: userApiKey },
         (update) => {
           if (update.text) {
              fullText += update.text;
@@ -374,9 +395,17 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
         }
       );
       
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Connection interrupted. Please try again.");
+      // Check for specific API Key errors
+      if (err.message.includes("API Key missing") || err.message.includes("401") || err.message.includes("403") || err.message.includes("400")) {
+        setIsApiKeyModalOpen(true);
+        // Remove the temporary messages to allow retry
+        setMessages(prev => prev.filter(m => m.id !== userMessage.id && m.role !== Role.MODEL));
+        setError("Missing or invalid API Key. Please enter it below.");
+      } else {
+        setError("Connection interrupted. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -385,6 +414,80 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
   return (
     <div className="flex h-screen bg-stone-50 overflow-hidden relative">
       
+      {/* --- API Key Modal --- */}
+      <AnimatePresence>
+        {isApiKeyModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+              onClick={() => setIsApiKeyModalOpen(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-stone-200"
+            >
+              <div className="p-6">
+                <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mb-4">
+                   <Key className="w-6 h-6 text-brand-600" />
+                </div>
+                <h3 className="text-xl font-bold text-stone-900 mb-2">Enter API Key</h3>
+                <p className="text-stone-500 text-sm mb-6 leading-relaxed">
+                  To use the Playground, you need a Google Gemini API Key. 
+                  Your key is stored locally in your browser.
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">
+                      API Key
+                    </label>
+                    <input 
+                      type="password" 
+                      value={tempApiKey}
+                      onChange={(e) => setTempApiKey(e.target.value)}
+                      placeholder="AIzaSy..."
+                      className="w-full px-4 py-3 rounded-lg border border-stone-200 bg-stone-50 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all font-mono text-sm"
+                    />
+                  </div>
+                  
+                  <a 
+                    href="https://aistudio.google.com/api-keys" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-3 rounded-lg bg-stone-50 border border-stone-200 hover:bg-stone-100 transition-colors group"
+                  >
+                    <span className="text-sm font-medium text-stone-700">Get an API Key from Google AI Studio</span>
+                    <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-brand-600" />
+                  </a>
+                </div>
+              </div>
+              
+              <div className="px-6 py-4 bg-stone-50 border-t border-stone-100 flex justify-end gap-3">
+                 <button 
+                   onClick={() => setIsApiKeyModalOpen(false)}
+                   className="px-4 py-2 rounded-lg text-stone-500 hover:bg-stone-200 hover:text-stone-700 text-sm font-medium transition-colors"
+                 >
+                   Cancel
+                 </button>
+                 <button 
+                   onClick={handleSaveApiKey}
+                   disabled={!tempApiKey.trim()}
+                   className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:bg-brand-300 text-white text-sm font-bold shadow-sm transition-all flex items-center gap-2"
+                 >
+                   Save Key
+                   <ChevronRight className="w-4 h-4" />
+                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* --- Sidebar --- */}
       <div 
         className={`
@@ -457,6 +560,20 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Sidebar Footer: API Key Settings */}
+          <div className="p-4 border-t border-stone-200">
+            <button 
+              onClick={() => {
+                setTempApiKey(userApiKey);
+                setIsApiKeyModalOpen(true);
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-200/50 transition-colors text-sm font-medium"
+            >
+              <Key size={16} />
+              {userApiKey ? 'Update API Key' : 'Set API Key'}
+            </button>
           </div>
         </div>
       </div>
@@ -545,8 +662,16 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
              </motion.div>
           )}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-sm text-center rounded-xl mx-auto max-w-md">
-              {error}
+            <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-sm text-center rounded-xl mx-auto max-w-md flex flex-col items-center gap-2">
+              <span>{error}</span>
+              {error.includes("API Key") && (
+                 <button 
+                   onClick={() => setIsApiKeyModalOpen(true)}
+                   className="text-xs bg-white px-3 py-1 rounded-full border border-red-200 shadow-sm hover:bg-red-50 font-bold"
+                 >
+                   Enter API Key
+                 </button>
+              )}
             </div>
           )}
           <div ref={messagesEndRef} className="h-4" />
