@@ -5,6 +5,9 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
+<img width="2090" height="988" alt="image" src="https://github.com/user-attachments/assets/be32cdab-cd52-4800-90d1-500cdba7f32f" />
+
+
 ## 🌟 Core Philosophy
 
 The problem with most AI usage in education is the "Copy-Paste Trap" — outsourcing the struggle of thinking to a machine. ThinkFirst flips this interaction:
@@ -12,6 +15,8 @@ The problem with most AI usage in education is the "Copy-Paste Trap" — outsour
 1.  **My Brain First**: You must formulate your own thesis or rough ideas before opening the tool.
 2.  **AI's Turn**: The AI acts as a Socratic coach. It critiques, structures, and offers counter-arguments, but **never** writes the content for you.
 3.  **My Brain Last**: You synthesize the feedback and write the final work yourself.
+
+
 
 ## ✨ Features
 
