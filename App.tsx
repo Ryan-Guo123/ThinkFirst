@@ -8,6 +8,7 @@ import { Playground } from './components/Playground';
 import { PROMPT_EXAMPLES } from './constants';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ArrowRight, CheckCircle, Users, Sparkles, BrainCircuit, ShieldCheck, GraduationCap, Clock, Target, Zap, MessageSquare, GitMerge, ScanEye, Fingerprint, AlertTriangle, Github } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 type ViewState = 'home' | 'playground';
 
@@ -350,6 +351,7 @@ export default function App() {
           </>
         )}
       </main>
+      <Analytics />
     </div>
   );
 }
