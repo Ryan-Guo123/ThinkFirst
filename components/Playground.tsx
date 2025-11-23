@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { streamChatResponse } from '../services/geminiService';
 import { ChatMessage, Role } from '../types';
@@ -40,8 +39,10 @@ const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ co
         <div className={`prose prose-stone max-w-none prose-p:leading-relaxed ${className}`}>
             <ReactMarkdown 
                 components={{
-                    a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline" {...props} />,
-                    pre: ({node, ...props}) => (
+                    a: (props: any) => (
+                      <a target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline" {...props} />
+                    ),
+                    pre: (props: any) => (
                       <div className="my-4 rounded-lg overflow-hidden bg-stone-50 border border-stone-200 shadow-sm">
                         <div className="flex items-center px-4 py-2 bg-stone-100/50 border-b border-stone-200">
                           <div className="flex gap-1.5">
@@ -55,13 +56,18 @@ const MarkdownContent: React.FC<{ content: string, className?: string }> = ({ co
                     ),
                     code: ({node, className, children, ...props}: any) => {
                       const match = /language-(\w+)/.exec(className || '');
-                      const isInline = !match && !String(children).includes('\n');
-                      return isInline ? (
-                        <code className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-brand-700 font-mono text-sm" {...props}>
-                          {children}
-                        </code>
-                      ) : (
-                        <code className={className} {...props}>
+                      const isInline = !match && (!children || !String(children).includes('\n'));
+                      
+                      if (isInline) {
+                        return (
+                          <code className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-brand-700 font-mono text-sm" {...props}>
+                            {children}
+                          </code>
+                        );
+                      }
+                      
+                      return (
+                        <code className={className || ''} {...props}>
                           {children}
                         </code>
                       );

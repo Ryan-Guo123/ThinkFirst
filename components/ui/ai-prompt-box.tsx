@@ -1,4 +1,3 @@
-
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -282,7 +281,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                     />
                     <button
                       onClick={() => removeFile(idx)}
-                      className="absolute top-1 right-1 top-1 right-1 bg-white/90 text-stone-500 rounded-full p-0.5 shadow-sm border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      className="absolute top-1 right-1 bg-white/90 text-stone-500 rounded-full p-0.5 shadow-sm border border-stone-100 hover:bg-red-50 hover:text-red-500 transition-colors"
                     >
                       <X className="w-3 h-3" />
                     </button>

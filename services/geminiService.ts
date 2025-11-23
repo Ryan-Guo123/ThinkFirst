@@ -1,5 +1,4 @@
-
-import { GoogleGenAI, Chat, GenerateContentResponse, Content, Part } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Content, Part } from "@google/genai";
 import { SYSTEM_INSTRUCTION, PERSONAS, PersonaKey } from "../constants";
 
 let aiInstance: GoogleGenAI | null = null;
@@ -16,10 +15,14 @@ const getAI = (apiKey?: string): GoogleGenAI => {
     return aiInstance;
   }
 
-  // Priority 2: Environment Variable
-  if (process.env.API_KEY) {
+  // Priority 2: Environment Variable (Safe check for browser)
+  // @ts-ignore
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    // @ts-ignore
     if (currentApiKey !== process.env.API_KEY || !aiInstance) {
+      // @ts-ignore
       aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // @ts-ignore
       currentApiKey = process.env.API_KEY;
     }
     return aiInstance;
@@ -112,6 +115,7 @@ export const streamChatResponse = async (
   }
 
   try {
+    // @ts-ignore
     const resultStream = await chat.sendMessageStream({ message: contents });
     
     for await (const chunk of resultStream) {
