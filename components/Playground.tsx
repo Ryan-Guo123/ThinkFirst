@@ -480,7 +480,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                     >
                       <div className="flex items-center gap-2">
                         <HelpCircle className="w-4 h-4 text-brand-600" />
-                        <span className="text-sm font-semibold text-stone-700">如何获取 Gemini API Key？</span>
+                        <span className="text-sm font-semibold text-stone-700">How to get a Gemini API Key?</span>
                       </div>
                       <ChevronDown 
                         className={`w-4 h-4 text-stone-500 transition-transform ${showTutorial ? 'rotate-180' : ''}`}
@@ -499,27 +499,27 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                           <div className="p-4 bg-white space-y-3 text-sm text-stone-600">
                             <div className="flex gap-3">
                               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">1</span>
-                              <p>访问 <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">Google AI Studio</a>，使用 Google 账号登录</p>
+                              <p>Visit <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">Google AI Studio</a> and sign in with your Google account</p>
                             </div>
                             <div className="flex gap-3">
                               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">2</span>
-                              <p>点击 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Create API Key"</span> 或 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Get API Key"</span> 按钮</p>
+                              <p>Click the <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Create API Key"</span> or <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Get API Key"</span> button</p>
                             </div>
                             <div className="flex gap-3">
                               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">3</span>
-                              <p>选择一个现有的 Google Cloud 项目，或创建一个新项目</p>
+                              <p>Select an existing Google Cloud project or create a new one</p>
                             </div>
                             <div className="flex gap-3">
                               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">4</span>
-                              <p>复制生成的 API Key（格式类似 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">AIzaSy...</span>）</p>
+                              <p>Copy the generated API Key (format like <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">AIzaSy...</span>)</p>
                             </div>
                             <div className="flex gap-3">
                               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">5</span>
-                              <p>将 API Key 粘贴到上面的输入框中并保存</p>
+                              <p>Paste the API Key into the input field above and save</p>
                             </div>
                             <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                               <p className="text-xs text-amber-800">
-                                <strong>💡 提示：</strong> Gemini API 提供免费额度，适合个人使用和学习。您的 API Key 只会保存在浏览器本地，不会上传到服务器。
+                                <strong>💡 Tip:</strong> Gemini API offers a free tier suitable for personal use and learning. Your API Key is stored locally in your browser and never uploaded to any server.
                               </p>
                             </div>
                           </div>
