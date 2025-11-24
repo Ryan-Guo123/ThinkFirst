@@ -4,7 +4,7 @@ import { ChatMessage, Role } from '../types';
 import { PromptInputBox } from './ui/ai-prompt-box';
 import { Content } from '@google/genai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Sparkles, Bot, Key, ChevronRight } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Menu, X, Home, History, ExternalLink, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Sparkles, Bot, Key, ChevronRight, ChevronDown, HelpCircle } from 'lucide-react';
 import { PersonaKey, PERSONAS } from '../constants';
 import ReactMarkdown from 'react-markdown';
 
@@ -198,6 +198,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
   const [userApiKey, setUserApiKey] = useState<string>('');
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
+  const [showTutorial, setShowTutorial] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -435,7 +436,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-stone-200"
+              className="relative bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-stone-200"
             >
               <div className="p-6">
                 <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mb-4">
@@ -470,6 +471,62 @@ export const Playground: React.FC<PlaygroundProps> = ({ onBack }) => {
                     <span className="text-sm font-medium text-stone-700">Get an API Key from Google AI Studio</span>
                     <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-brand-600" />
                   </a>
+
+                  {/* Tutorial Section */}
+                  <div className="border border-stone-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setShowTutorial(!showTutorial)}
+                      className="w-full flex items-center justify-between p-3 bg-brand-50/30 hover:bg-brand-50/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <HelpCircle className="w-4 h-4 text-brand-600" />
+                        <span className="text-sm font-semibold text-stone-700">如何获取 Gemini API Key？</span>
+                      </div>
+                      <ChevronDown 
+                        className={`w-4 h-4 text-stone-500 transition-transform ${showTutorial ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    
+                    <AnimatePresence>
+                      {showTutorial && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-4 bg-white space-y-3 text-sm text-stone-600">
+                            <div className="flex gap-3">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">1</span>
+                              <p>访问 <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">Google AI Studio</a>，使用 Google 账号登录</p>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">2</span>
+                              <p>点击 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Create API Key"</span> 或 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">"Get API Key"</span> 按钮</p>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">3</span>
+                              <p>选择一个现有的 Google Cloud 项目，或创建一个新项目</p>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">4</span>
+                              <p>复制生成的 API Key（格式类似 <span className="px-2 py-0.5 bg-stone-100 rounded text-xs font-mono">AIzaSy...</span>）</p>
+                            </div>
+                            <div className="flex gap-3">
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">5</span>
+                              <p>将 API Key 粘贴到上面的输入框中并保存</p>
+                            </div>
+                            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                              <p className="text-xs text-amber-800">
+                                <strong>💡 提示：</strong> Gemini API 提供免费额度，适合个人使用和学习。您的 API Key 只会保存在浏览器本地，不会上传到服务器。
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
               
