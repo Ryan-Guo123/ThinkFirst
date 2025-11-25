@@ -1,88 +1,144 @@
-# ThinkFirst 🧠
 
-**ThinkFirst** is a cognitive coaching platform that turns AI into a thinking partner, not a homework doer. It emphasizes the **"Brain First -> AI -> Brain Last"** methodology to help students and lifelong learners think deeper.
+<div align="center">
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+# 🧠 ThinkFirst
+### Your AI Socratic Coach, Not Your Homework Doer.
 
-<img width="2090" height="988" alt="image" src="https://github.com/user-attachments/assets/be32cdab-cd52-4800-90d1-500cdba7f32f" />
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Visitor Count](https://visitor-badge.laobi.icu/badge?page_id=Ryan-Guo123.ThinkFirst)](https://github.com/Ryan-Guo123/ThinkFirst)
+[![GitHub stars](https://img.shields.io/github/stars/Ryan-Guo123/ThinkFirst?style=flat-square&logo=github)](https://github.com/Ryan-Guo123/ThinkFirst/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Ryan-Guo123/ThinkFirst?style=flat-square&logo=github)](https://github.com/Ryan-Guo123/ThinkFirst/network)
+[![Vercel](https://vercelbadge.vercel.app/api/Ryan-Guo123/ThinkFirst)](https://think-first.vercel.app)
 
+![Repo Size](https://img.shields.io/github/repo-size/Ryan-Guo123/ThinkFirst?style=flat-square&color=orange)
+![Last Commit](https://img.shields.io/github/last-commit/Ryan-Guo123/ThinkFirst?style=flat-square&color=success)
+![Top Language](https://img.shields.io/github/languages/top/Ryan-Guo123/ThinkFirst?style=flat-square)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&style=flat-square)](https://reactjs.org/)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-8E75B2?logo=google&style=flat-square)](https://deepmind.google/technologies/gemini/)
+[![Tailwind](https://img.shields.io/badge/Style-Tailwind%20CSS-38B2AC?logo=tailwindcss&style=flat-square)](https://tailwindcss.com/)
+
+<p align="center">
+  <a href="#-core-philosophy">Philosophy</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
+
+<img width="100%" alt="ThinkFirst Interface" src="https://github.com/user-attachments/assets/be32cdab-cd52-4800-90d1-500cdba7f32f" />
+
+</div>
+
+
+
+---
 
 ## 🌟 Core Philosophy
 
-The problem with most AI usage in education is the "Copy-Paste Trap" — outsourcing the struggle of thinking to a machine. ThinkFirst flips this interaction:
+**The Problem:** Most AI tools create a "Copy-Paste Trap" — outsourcing the struggle of thinking to a machine.
+**The Solution:** ThinkFirst flips the interaction using the **"Brain First -> AI -> Brain Last"** methodology:
 
-1.  **My Brain First**: You must formulate your own thesis or rough ideas before opening the tool.
-2.  **AI's Turn**: The AI acts as a Socratic coach. It critiques, structures, and offers counter-arguments, but **never** writes the content for you.
-3.  **My Brain Last**: You synthesize the feedback and write the final work yourself.
+1.  **🛑 My Brain First**: You formulate your own thesis or rough ideas *before* touching the AI.
+2.  **🤖 AI's Turn**: The AI acts as a **Socratic Coach**. It critiques, structures, and offers counter-arguments, but **refuses to generate the final text**.
+3.  **📝 My Brain Last**: You synthesize the feedback and write the final work yourself.
 
-
+> "Don't let AI steal your 'Aha!' moment."
 
 ## ✨ Features
 
--   **Socratic AI Coach**: Powered by Google's **Gemini 2.5 Flash**, the AI is prompted to refuse low-effort requests and instead ask probing questions.
--   **Persona System**: Switch between specialized coaching modes:
-    -   🧠 **General Coach**: Balanced guidance.
-    -   🛡️ **Devil's Advocate**: Ruthlessly logical critique to strengthen arguments.
-    -   🏗️ **The Architect**: Helps organize scattered thoughts into structured outlines.
-    -   ❓ **Socratic Expander**: Pushes for deeper "Why" and "How" analysis.
-    -   🔗 **Analogy Maker**: Explains complex concepts using metaphors.
--   **Multi-Modal Playground**: Support for text and image inputs (e.g., upload a diagram for critique).
--   **Thinking & Search Modes**: 
-    -   *Search*: Grounding with Google Search for fact-checking.
-    -   *Think*: Enhanced reasoning for complex logic.
--   **Privacy Focused**: API keys are stored locally in your browser (`localStorage`).
+### 🛡️ The Persona System
+Switch between specialized coaching modes tailored to your cognitive needs:
 
-## 🚀 Getting Started
+| Persona | Function | Best For |
+| :--- | :--- | :--- |
+| 🧠 **General Coach** | Balanced guidance & feedback. | General inquiry. |
+| 🛡️ **Devil's Advocate** | Ruthlessly logical critique. | Strengthening weak arguments. |
+| 🏗️ **The Architect** | Structures scattered thoughts. | Outlining essays or projects. |
+| ❓ **Socratic Expander** | Pushes for deeper "Why" & "How". | Breaking through writer's block. |
+| 🔗 **Analogy Maker** | Explains via metaphors. | Understanding complex abstract concepts. |
+
+### 🚀 Modern Capabilities
+- **Powered by Gemini 2.5 Flash**: Leveraging Google's model for high-speed, low-latency reasoning.
+- **Multi-Modal Playground**: Upload diagrams or notes; the AI "sees" and critiques them.
+- **Dual Modes**:
+    - **Search**: Grounds answers with real-time Google Search data.
+    - **Think**: Enhanced reasoning depth for complex logic puzzles.
+- **Privacy First**: API keys are stored locally in your browser (`localStorage`). No backend tracking.
+
+## 🛠 Tech Stack
+
+This project is engineered with a focus on performance and modern web standards.
+
+- **Frontend**: [React 18](https://react.dev/) (ESM) + [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + `clsx` + `tailwind-merge`
+- **Motion**: [Framer Motion](https://www.framer.com/motion/) for fluid UI interactions.
+- **AI SDK**: [`@google/genai`](https://www.npmjs.com/package/@google/genai)
+- **Icons**: [Lucide React](https://lucide.dev/)
+
+## ⚡ Quick Start
 
 ### Prerequisites
+- Node.js (v18+)
+- A Google Gemini API Key ([Get one here](https://aistudio.google.com/api-keys))
 
-This project is built using **React**, **TypeScript**, and **Tailwind CSS**. It relies on the `@google/genai` SDK for AI interactions.
+### Installation
 
-### Usage
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Ryan-Guo123/ThinkFirst
+   cd ThinkFirst
+    ```
 
-1.  **Open the Application**: Launch the app in your browser.
-2.  **Enter API Key**: Click the key icon in the sidebar or playground to enter your Google Gemini API Key.
-    -   Get a key here: [Google AI Studio](https://aistudio.google.com/api-keys)
-3.  **Start a Session**:
-    -   Choose a Persona (e.g., "The Architect" if you are brainstorming).
-    -   Type your initial thought.
-    -   The AI will respond with questions, perspectives, or structural advice.
+2.  **Install dependencies**
 
-## 🛠️ Technical Architecture
+    ```bash
+    yarn install
+    ```
 
--   **Frontend**: React 18 (ESM)
--   **Styling**: Tailwind CSS + `clsx`/`tailwind-merge`
--   **Animations**: Framer Motion
--   **AI Integration**: `@google/genai` SDK
--   **Icons**: Lucide React
+3.  **Run the development server**
 
-### Key Files
+    ```bash
+    npm run dev
+    ```
 
--   `services/geminiService.ts`: Handles interaction with Google Gemini API, managing streaming responses and tool configurations (Search/Thinking).
--   `constants.ts`: Contains the System Instructions (Prompts) that define the AI's Socratic behavior and Persona definitions.
--   `components/Playground.tsx`: The main chat interface handling state, local storage persistence, and Markdown rendering.
+4.  **Configure API Key**
+
+      - Open the app in your browser (usually `http://localhost:3000/`).
+      - Click Start Thinking
+      - Click the **Key Icon** in the sidebar.
+      - Paste your Gemini API Key.
+
+
+## 📂 Key Structure
+
+
+```text
+src/
+├── components/
+│   └── Playground.tsx      # Main chat interface & Markdown rendering
+├── services/
+│   └── geminiService.ts    # Gemini SDK implementation & stream handling
+├── constants.ts            # System Instructions (Prompts) & Persona definitions
+└── App.tsx                 # Routing & Layout
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! We are looking for:
--   New **Personas** (Prompt Engineering in `constants.ts`).
--   UI/UX improvements.
--   Educational integrations.
+We are looking for contributions to expand the "Thinking" capabilities:
+
+  * **Prompt Engineering**: Refine existing personas in `constants.ts`.
+  * **UI/UX**: Improve the thinking flow visualization.
+  * **Integrations**: Connect with Notion or Obsidian.
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
----
-
+-----
 
 ## Star History
 
-<a href="https://www.star-history.com/#Ryan-Guo123/ThinkFirst&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/svg?repos=Ryan-Guo123/ThinkFirst&type=date&legend=top-left)](https://www.star-history.com/#Ryan-Guo123/ThinkFirst&type=date&legend=top-left)
+
