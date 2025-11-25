@@ -2,7 +2,7 @@
 <div align="center">
 
 # 🧠 ThinkFirst
-### Your AI Socratic Coach, Not Your Homework Doer.
+### Turn AI into your sparring partner, not your ghostwriter.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Visitor Count](https://visitor-badge.laobi.icu/badge?page_id=Ryan-Guo123.ThinkFirst)](https://github.com/Ryan-Guo123/ThinkFirst)
