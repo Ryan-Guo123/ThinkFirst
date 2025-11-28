@@ -5,6 +5,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PERSONAS, PersonaKey } from "../../constants";
+import { SpeechToTextButton } from "./SpeechToTextButton";
 
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
@@ -220,6 +221,15 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
     setActiveMode(prev => prev === mode ? 'default' : mode);
   };
 
+  const handleSpeechTranscript = React.useCallback((text: string) => {
+    setInput(prev => {
+      const newText = prev ? `${prev} ${text}` : text;
+      return newText;
+    });
+    // Focus the textarea after transcription
+    textareaRef.current?.focus();
+  }, []);
+
   return (
     <div className="relative w-full transition-all duration-500 z-50" ref={ref}>
       
@@ -373,6 +383,11 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                 </TooltipTrigger>
                 <TooltipContent>Attach Image</TooltipContent>
               </Tooltip>
+
+              <SpeechToTextButton
+                onTranscript={handleSpeechTranscript}
+                disabled={isLoading}
+              />
 
               <Tooltip>
                 <TooltipTrigger asChild>
