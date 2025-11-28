@@ -39,7 +39,11 @@ self.onmessage = async function(event) {
         await initializePipeline((progress) => {
           // Report download progress
           if (progress.status === 'progress') {
-            const percent = progress.progress || 0;
+            // Handle both decimal (0-1) and percentage (0-100) formats
+            let percent = progress.progress || 0;
+            if (percent <= 1) {
+              percent = percent * 100;
+            }
             self.postMessage({
               type: 'progress',
               progress: Math.round(percent),

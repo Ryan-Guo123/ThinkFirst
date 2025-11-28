@@ -150,7 +150,7 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          sampleRate: 48000, // Request higher quality, we'll resample
+          // Let browser choose optimal sample rate, we'll resample to 16kHz later
         } 
       });
       streamRef.current = stream;
@@ -164,6 +164,50 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Set up onstop handler before starting to avoid race condition
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        try {
+          // Convert to AudioBuffer
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const audioContext = new AudioContext();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          // Get audio data (mono)
+          let audioData: Float32Array;
+          if (audioBuffer.numberOfChannels > 1) {
+            // Mix down to mono
+            const left = audioBuffer.getChannelData(0);
+            const right = audioBuffer.getChannelData(1);
+            audioData = new Float32Array(left.length);
+            for (let i = 0; i < left.length; i++) {
+              audioData[i] = (left[i] + right[i]) / 2;
+            }
+          } else {
+            audioData = audioBuffer.getChannelData(0);
+          }
+
+          // Resample to 16000Hz
+          const resampledData = resampleAudio(
+            audioData,
+            audioBuffer.sampleRate,
+            TARGET_SAMPLE_RATE
+          );
+
+          // Send to worker for transcription
+          workerRef.current?.postMessage({
+            type: 'transcribe',
+            audio: resampledData
+          });
+
+          await audioContext.close();
+        } catch (err: any) {
+          setError(err.message || 'Failed to process audio');
+          setStatus('error');
         }
       };
 
@@ -182,7 +226,6 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
   const stopRecording = useCallback(() => {
     if (!mediaRecorderRef.current || status !== 'recording') return;
 
-    mediaRecorderRef.current.stop();
     setStatus('processing');
 
     // Stop all tracks
@@ -191,50 +234,8 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
       streamRef.current = null;
     }
 
-    // Process the recorded audio
-    mediaRecorderRef.current.onstop = async () => {
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-      
-      try {
-        // Convert to AudioBuffer
-        const arrayBuffer = await audioBlob.arrayBuffer();
-        const audioContext = new AudioContext();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        
-        // Get audio data (mono)
-        let audioData: Float32Array;
-        if (audioBuffer.numberOfChannels > 1) {
-          // Mix down to mono
-          const left = audioBuffer.getChannelData(0);
-          const right = audioBuffer.getChannelData(1);
-          audioData = new Float32Array(left.length);
-          for (let i = 0; i < left.length; i++) {
-            audioData[i] = (left[i] + right[i]) / 2;
-          }
-        } else {
-          audioData = audioBuffer.getChannelData(0);
-        }
-
-        // Resample to 16000Hz
-        const resampledData = resampleAudio(
-          audioData,
-          audioBuffer.sampleRate,
-          TARGET_SAMPLE_RATE
-        );
-
-        // Send to worker for transcription
-        workerRef.current?.postMessage({
-          type: 'transcribe',
-          audio: resampledData
-        });
-
-        await audioContext.close();
-      } catch (err: any) {
-        setError(err.message || 'Failed to process audio');
-        setStatus('error');
-      }
-    };
-
+    // Stop the recorder - onstop handler is already set up in startRecording
+    mediaRecorderRef.current.stop();
     mediaRecorderRef.current = null;
   }, [status]);
 
