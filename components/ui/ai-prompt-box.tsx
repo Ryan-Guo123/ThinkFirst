@@ -2,10 +2,10 @@ import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon } from "lucide-react";
+import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Mic } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PERSONAS, PersonaKey } from "../../constants";
-import { SpeechToTextButton } from "./SpeechToTextButton";
+import { useSpeechToText } from "../../hooks/useSpeechToText";
 
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
@@ -139,6 +139,11 @@ interface PromptInputBoxProps {
   onPersonaChange: (persona: PersonaKey) => void;
 }
 
+// Voice recording UI constants
+const VISUALIZER_BARS = 48;
+const VISUALIZER_MIN_HEIGHT = 20;
+const VISUALIZER_HEIGHT_RANGE = 60;
+
 export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxProps>(({ 
   onSend, 
   isLoading = false, 
@@ -153,9 +158,85 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   const [activeMode, setActiveMode] = React.useState<'default' | 'search' | 'think'>('default');
   const [isFocused, setIsFocused] = React.useState(false);
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
+  const [voiceInputActive, setVoiceInputActive] = React.useState(false);
+  const [recordingTime, setRecordingTime] = React.useState(0);
   
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Speech to Text hook
+  // Note: setInput and setVoiceInputActive are stable functions from useState
+  const handleSpeechTranscript = React.useCallback((text: string) => {
+    setInput(prev => {
+      const newText = prev ? `${prev} ${text}` : text;
+      return newText;
+    });
+    setVoiceInputActive(false);
+    // Focus the textarea after transcription
+    textareaRef.current?.focus();
+  }, []);
+
+  const {
+    status: voiceStatus,
+    progress: voiceProgress,
+    isModelLoaded,
+    startRecording,
+    stopRecording,
+    loadModel,
+  } = useSpeechToText(handleSpeechTranscript);
+
+  const isRecording = voiceStatus === 'recording';
+  const isVoiceProcessing = voiceStatus === 'processing';
+  const isVoiceLoading = voiceStatus === 'loading';
+
+  // Recording timer
+  React.useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isRecording) {
+      intervalId = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(intervalId);
+  }, [isRecording]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleVoiceClick = React.useCallback(() => {
+    if (isLoading) return;
+
+    if (!voiceInputActive) {
+      setVoiceInputActive(true);
+      if (!isModelLoaded) {
+        loadModel();
+      } else {
+        startRecording();
+      }
+    } else if (isRecording) {
+      stopRecording();
+    } else if (voiceStatus === 'ready') {
+      startRecording();
+    } else if (voiceStatus === 'error' || voiceStatus === 'idle') {
+      if (!isModelLoaded) {
+        loadModel();
+      } else {
+        startRecording();
+      }
+    }
+  }, [isLoading, voiceInputActive, isModelLoaded, isRecording, voiceStatus, loadModel, startRecording, stopRecording]);
+
+  // When model is ready after loading, start recording
+  React.useEffect(() => {
+    if (voiceInputActive && voiceStatus === 'ready' && !isRecording) {
+      startRecording();
+    }
+  }, [voiceInputActive, voiceStatus, isRecording, startRecording]);
 
   React.useEffect(() => {
     if (textareaRef.current) {
@@ -220,15 +301,6 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   const toggleMode = (mode: 'search' | 'think') => {
     setActiveMode(prev => prev === mode ? 'default' : mode);
   };
-
-  const handleSpeechTranscript = React.useCallback((text: string) => {
-    setInput(prev => {
-      const newText = prev ? `${prev} ${text}` : text;
-      return newText;
-    });
-    // Focus the textarea after transcription
-    textareaRef.current?.focus();
-  }, []);
 
   return (
     <div className="relative w-full transition-all duration-500 z-50" ref={ref}>
@@ -301,6 +373,120 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
             )}
           </AnimatePresence>
 
+          {/* Voice Recording UI - shows when voice input is active */}
+          <AnimatePresence>
+            {(voiceInputActive || isRecording || isVoiceProcessing || isVoiceLoading) && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className={cn(
+                  "mx-3 mt-3 rounded-xl overflow-hidden transition-all duration-300",
+                  isRecording ? "bg-stone-900" : "bg-stone-100"
+                )}>
+                  <div className={cn(
+                    "h-12 flex items-center w-full",
+                    isRecording ? "bg-stone-900" : "bg-transparent"
+                  )}>
+                    {/* Visualizer Bars - Left Side */}
+                    <div className={cn(
+                      "flex items-center gap-0.5 h-6 px-3 flex-1 overflow-hidden",
+                      !isRecording && "opacity-50"
+                    )}>
+                      {[...Array(VISUALIZER_BARS)].map((_, i) => (
+                        isRecording ? (
+                          <motion.div
+                            key={i}
+                            className={cn(
+                              "w-0.5 rounded-full",
+                              isRecording ? "bg-stone-400" : "bg-stone-300"
+                            )}
+                            animate={{
+                              height: [
+                                `${VISUALIZER_MIN_HEIGHT + Math.random() * VISUALIZER_HEIGHT_RANGE}%`,
+                                `${VISUALIZER_MIN_HEIGHT + Math.random() * VISUALIZER_HEIGHT_RANGE}%`,
+                                `${VISUALIZER_MIN_HEIGHT + Math.random() * VISUALIZER_HEIGHT_RANGE}%`,
+                              ],
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              repeat: Infinity,
+                              repeatType: "reverse",
+                              delay: i * 0.02,
+                            }}
+                          />
+                        ) : (
+                          <div
+                            key={i}
+                            className="w-0.5 rounded-full bg-stone-300"
+                            style={{ height: "30%" }}
+                          />
+                        )
+                      ))}
+                    </div>
+
+                    {/* Time Display */}
+                    <div className={cn(
+                      "text-sm font-mono min-w-[60px] text-center transition-colors duration-300",
+                      isRecording ? "text-stone-300" : "text-stone-500"
+                    )}>
+                      {isRecording ? formatTime(recordingTime) : 
+                       isVoiceProcessing ? '...' : 
+                       isVoiceLoading ? `${voiceProgress}%` : '00:00'}
+                    </div>
+
+                    {/* Stop Button - Right Side */}
+                    <div className="pr-3 pl-3">
+                      <motion.button
+                        onClick={handleVoiceClick}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={cn(
+                          "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+                          isRecording
+                            ? "bg-red-500 hover:bg-red-600 text-white"
+                            : isVoiceLoading || isVoiceProcessing
+                              ? "bg-brand-500 text-white animate-pulse"
+                              : "bg-stone-800 hover:bg-stone-700 text-white"
+                        )}
+                        disabled={isVoiceProcessing}
+                      >
+                        {isRecording ? (
+                          <Square className="w-3.5 h-3.5 fill-current" />
+                        ) : (
+                          <Mic className="w-4 h-4" />
+                        )}
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Progress bar for loading */}
+                  {isVoiceLoading && voiceProgress > 0 && voiceProgress < 100 && (
+                    <div className="w-full h-1 bg-stone-200">
+                      <motion.div
+                        className="h-full bg-brand-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${voiceProgress}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Status text */}
+                {(isVoiceLoading || isVoiceProcessing) && (
+                  <div className="text-center py-2">
+                    <span className="text-xs text-stone-500">
+                      {isVoiceLoading ? `Loading model... ${voiceProgress}%` : 'Transcribing...'}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="px-4 py-3 transition-all">
             <Textarea
               ref={textareaRef}
@@ -368,7 +554,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                   <button 
                     onClick={() => fileInputRef.current?.click()}
                     className="p-2 rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
-                    disabled={isLoading}
+                    disabled={isLoading || voiceInputActive}
                   >
                     <Paperclip className="w-5 h-5" />
                     <input 
@@ -384,10 +570,31 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                 <TooltipContent>Attach Image</TooltipContent>
               </Tooltip>
 
-              <SpeechToTextButton
-                onTranscript={handleSpeechTranscript}
-                disabled={isLoading}
-              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={handleVoiceClick}
+                    className={cn(
+                      "p-2 rounded-full transition-all duration-300",
+                      voiceInputActive || isRecording
+                        ? "bg-red-100 text-red-600 hover:bg-red-200"
+                        : isVoiceLoading || isVoiceProcessing
+                          ? "bg-brand-50 text-brand-600"
+                          : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"
+                    )}
+                    disabled={isLoading || isVoiceProcessing}
+                  >
+                    {isRecording ? (
+                      <Square className="w-4 h-4 fill-current" />
+                    ) : (
+                      <Mic className="w-5 h-5" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isRecording ? 'Stop Recording' : voiceInputActive ? 'Recording...' : 'Voice Input'}
+                </TooltipContent>
+              </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>
