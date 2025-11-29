@@ -86,6 +86,15 @@ self.onmessage = async function(event) {
       }
 
       try {
+        // Validate audio input
+        if (!audio || audio.length === 0) {
+          self.postMessage({ 
+            type: 'error', 
+            error: 'No audio data received' 
+          });
+          return;
+        }
+
         // Transcribe the audio
         const result = await transcriber(audio, {
           chunk_length_s: 30,
@@ -95,11 +104,14 @@ self.onmessage = async function(event) {
           return_timestamps: false,
         });
 
+        const text = result.text ? result.text.trim() : '';
+        
         self.postMessage({
           type: 'result',
-          text: result.text.trim()
+          text: text
         });
       } catch (error) {
+        console.error('Transcription error:', error);
         self.postMessage({ 
           type: 'error', 
           error: error.message || 'Transcription failed' 

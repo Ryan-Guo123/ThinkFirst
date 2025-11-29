@@ -167,10 +167,12 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   // Speech to Text hook
   // Note: setInput and setVoiceInputActive are stable functions from useState
   const handleSpeechTranscript = React.useCallback((text: string) => {
-    setInput(prev => {
-      const newText = prev ? `${prev} ${text}` : text;
-      return newText;
-    });
+    if (text && text.trim()) {
+      setInput(prev => {
+        const newText = prev ? `${prev} ${text}` : text;
+        return newText;
+      });
+    }
     setVoiceInputActive(false);
     // Focus the textarea after transcription
     textareaRef.current?.focus();
@@ -179,6 +181,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   const {
     status: voiceStatus,
     progress: voiceProgress,
+    error: voiceError,
     isModelLoaded,
     startRecording,
     stopRecording,
@@ -188,6 +191,18 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   const isRecording = voiceStatus === 'recording';
   const isVoiceProcessing = voiceStatus === 'processing';
   const isVoiceLoading = voiceStatus === 'loading';
+  const isVoiceError = voiceStatus === 'error';
+
+  // Reset voiceInputActive when there's an error or when processing completes without callback
+  React.useEffect(() => {
+    if (isVoiceError) {
+      // Keep UI visible briefly to show error, then hide
+      const timer = setTimeout(() => {
+        setVoiceInputActive(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isVoiceError]);
 
   // Recording timer
   React.useEffect(() => {
@@ -231,12 +246,18 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
     }
   }, [isLoading, voiceInputActive, isModelLoaded, isRecording, voiceStatus, loadModel, startRecording, stopRecording]);
 
-  // When model is ready after loading, start recording
+  // When model is ready after loading, start recording automatically
   React.useEffect(() => {
-    if (voiceInputActive && voiceStatus === 'ready' && !isRecording) {
-      startRecording();
+    if (voiceInputActive && voiceStatus === 'ready' && !isRecording && !isVoiceProcessing) {
+      // Only auto-start if we haven't just finished processing
+      const timer = setTimeout(() => {
+        if (voiceInputActive && voiceStatus === 'ready') {
+          startRecording();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [voiceInputActive, voiceStatus, isRecording, startRecording]);
+  }, [voiceInputActive, voiceStatus, isRecording, isVoiceProcessing, startRecording]);
 
   React.useEffect(() => {
     if (textareaRef.current) {
@@ -375,7 +396,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
 
           {/* Voice Recording UI - shows when voice input is active */}
           <AnimatePresence>
-            {(voiceInputActive || isRecording || isVoiceProcessing || isVoiceLoading) && (
+            {(voiceInputActive || isRecording || isVoiceProcessing || isVoiceLoading || isVoiceError) && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -384,7 +405,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
               >
                 <div className={cn(
                   "mx-3 mt-3 rounded-xl overflow-hidden transition-all duration-300",
-                  isRecording ? "bg-stone-900" : "bg-stone-100"
+                  isRecording ? "bg-stone-900" : isVoiceError ? "bg-red-50" : "bg-stone-100"
                 )}>
                   <div className={cn(
                     "h-12 flex items-center w-full",
@@ -476,10 +497,15 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                 </div>
 
                 {/* Status text */}
-                {(isVoiceLoading || isVoiceProcessing) && (
+                {(isVoiceLoading || isVoiceProcessing || isVoiceError) && (
                   <div className="text-center py-2">
-                    <span className="text-xs text-stone-500">
-                      {isVoiceLoading ? `Loading model... ${voiceProgress}%` : 'Transcribing...'}
+                    <span className={cn(
+                      "text-xs",
+                      isVoiceError ? "text-red-500" : "text-stone-500"
+                    )}>
+                      {isVoiceLoading ? `Loading model... ${voiceProgress}%` : 
+                       isVoiceProcessing ? 'Transcribing...' :
+                       isVoiceError ? (voiceError || 'An error occurred') : ''}
                     </span>
                   </div>
                 )}

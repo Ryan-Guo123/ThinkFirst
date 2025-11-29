@@ -169,13 +169,48 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
 
       // Set up onstop handler before starting to avoid race condition
       mediaRecorder.onstop = async () => {
+        // Clear the mediaRecorder reference immediately
+        mediaRecorderRef.current = null;
+        
+        // Check if we have audio data
+        if (audioChunksRef.current.length === 0) {
+          setError('No audio recorded. Please try again.');
+          setStatus('ready');
+          return;
+        }
+
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        // Check blob size - if too small, probably no useful audio
+        if (audioBlob.size < 1000) {
+          setError('Recording too short. Please try again.');
+          setStatus('ready');
+          return;
+        }
         
         try {
           // Convert to AudioBuffer
           const arrayBuffer = await audioBlob.arrayBuffer();
           const audioContext = new AudioContext();
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          let audioBuffer;
+          try {
+            audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          } catch (decodeErr) {
+            console.error('Failed to decode audio:', decodeErr);
+            setError('Failed to decode audio. Please try again.');
+            setStatus('ready');
+            await audioContext.close();
+            return;
+          }
+          
+          // Check if audio duration is too short (less than 0.5 seconds)
+          if (audioBuffer.duration < 0.5) {
+            setError('Recording too short. Please speak for longer.');
+            setStatus('ready');
+            await audioContext.close();
+            return;
+          }
           
           // Get audio data (mono)
           let audioData: Float32Array;
@@ -198,16 +233,25 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
             TARGET_SAMPLE_RATE
           );
 
+          // Check if worker is ready
+          if (!workerRef.current) {
+            setError('Transcription service not ready. Please try again.');
+            setStatus('ready');
+            await audioContext.close();
+            return;
+          }
+
           // Send to worker for transcription
-          workerRef.current?.postMessage({
+          workerRef.current.postMessage({
             type: 'transcribe',
             audio: resampledData
           });
 
           await audioContext.close();
         } catch (err: any) {
+          console.error('Error processing audio:', err);
           setError(err.message || 'Failed to process audio');
-          setStatus('error');
+          setStatus('ready');
         }
       };
 
@@ -224,19 +268,27 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
    * Stop recording and process the audio
    */
   const stopRecording = useCallback(() => {
-    if (!mediaRecorderRef.current || status !== 'recording') return;
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || status !== 'recording') return;
 
+    // Set processing status before stopping
     setStatus('processing');
 
-    // Stop all tracks
+    // Stop all tracks first
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
 
-    // Stop the recorder - onstop handler is already set up in startRecording
-    mediaRecorderRef.current.stop();
-    mediaRecorderRef.current = null;
+    // Stop the recorder - onstop handler will process the audio
+    try {
+      recorder.stop();
+    } catch (err) {
+      console.error('Error stopping recorder:', err);
+      setError('Failed to stop recording');
+      setStatus('ready');
+      mediaRecorderRef.current = null;
+    }
   }, [status]);
 
   /**
