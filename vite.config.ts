@@ -18,6 +18,15 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      worker: {
+        format: 'es',
+      },
+      optimizeDeps: {
+        exclude: ['@xenova/transformers']
+      },
+      build: {
+        target: 'esnext',
       }
     };
 });
