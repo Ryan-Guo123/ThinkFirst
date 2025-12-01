@@ -65,6 +65,12 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  
+  // Use a ref to always have the latest callback
+  const onTranscriptRef = useRef(onTranscript);
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+  }, [onTranscript]);
 
   /**
    * Initialize the Web Worker
@@ -97,8 +103,9 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
         case 'result':
           setTranscript(text);
           setStatus('ready');
-          if (onTranscript && text) {
-            onTranscript(text);
+          // Use the ref to get the latest callback
+          if (onTranscriptRef.current && text) {
+            onTranscriptRef.current(text);
           }
           break;
 
@@ -113,7 +120,7 @@ export function useSpeechToText(onTranscript?: (text: string) => void): UseSpeec
       setError(err.message || 'Worker error');
       setStatus('error');
     };
-  }, [onTranscript]);
+  }, []); // No dependencies needed since we use ref for callback
 
   /**
    * Load the Whisper model
