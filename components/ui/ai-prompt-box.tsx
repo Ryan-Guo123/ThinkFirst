@@ -233,6 +233,9 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   const handleVoiceClick = React.useCallback(() => {
     if (isLoading) return;
 
+    // Clear the flag when user manually initiates a new recording
+    justFinishedProcessingRef.current = false;
+
     if (!voiceInputActive) {
       setVoiceInputActive(true);
       if (!isModelLoaded) {
@@ -256,13 +259,14 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   // When model is ready after loading, start recording automatically
   // But not if we just finished processing (to prevent auto-restart after transcription)
   React.useEffect(() => {
-    // If we just finished processing, clear the flag and don't auto-start
-    if (justFinishedProcessingRef.current) {
-      justFinishedProcessingRef.current = false;
-      return;
-    }
-    
+    // Only consider auto-starting if all conditions are met
     if (voiceInputActive && voiceStatus === 'ready' && !isRecording && !isVoiceProcessing) {
+      // If we just finished processing, clear the flag and don't auto-start
+      if (justFinishedProcessingRef.current) {
+        justFinishedProcessingRef.current = false;
+        return;
+      }
+      
       const timer = setTimeout(() => {
         // Check the flag again inside the timeout
         if (justFinishedProcessingRef.current) {
