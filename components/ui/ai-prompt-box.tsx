@@ -163,10 +163,15 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // Track if we just finished processing to prevent auto-restart of recording
+  const justFinishedProcessingRef = React.useRef(false);
 
   // Speech to Text hook
   // Note: setInput and setVoiceInputActive are stable functions from useState
   const handleSpeechTranscript = React.useCallback((text: string) => {
+    // Mark that we just finished processing to prevent auto-restart
+    justFinishedProcessingRef.current = true;
+    
     if (text && text.trim()) {
       setInput(prev => {
         const newText = prev ? `${prev} ${text}` : text;
@@ -196,6 +201,8 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   // Reset voiceInputActive when there's an error or when processing completes without callback
   React.useEffect(() => {
     if (isVoiceError) {
+      // Mark that we just finished processing to prevent auto-restart
+      justFinishedProcessingRef.current = true;
       // Keep UI visible briefly to show error, then hide
       const timer = setTimeout(() => {
         setVoiceInputActive(false);
@@ -247,10 +254,21 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   }, [isLoading, voiceInputActive, isModelLoaded, isRecording, voiceStatus, loadModel, startRecording, stopRecording]);
 
   // When model is ready after loading, start recording automatically
+  // But not if we just finished processing (to prevent auto-restart after transcription)
   React.useEffect(() => {
+    // If we just finished processing, clear the flag and don't auto-start
+    if (justFinishedProcessingRef.current) {
+      justFinishedProcessingRef.current = false;
+      return;
+    }
+    
     if (voiceInputActive && voiceStatus === 'ready' && !isRecording && !isVoiceProcessing) {
-      // Only auto-start if we haven't just finished processing
       const timer = setTimeout(() => {
+        // Check the flag again inside the timeout
+        if (justFinishedProcessingRef.current) {
+          justFinishedProcessingRef.current = false;
+          return;
+        }
         if (voiceInputActive && voiceStatus === 'ready') {
           startRecording();
         }
