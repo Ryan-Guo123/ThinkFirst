@@ -92,7 +92,7 @@ This project is engineered with a focus on performance and modern web standards.
 2.  **Install dependencies**
 
     ```bash
-    yarn install
+    npm install
     ```
 
 3.  **Run the development server**
@@ -113,13 +113,15 @@ This project is engineered with a focus on performance and modern web standards.
 
 
 ```text
-src/
+ThinkFirst/
 ├── components/
-│   └── Playground.tsx      # Main chat interface & Markdown rendering
+│   ├── Playground.tsx      # Main chat interface & Markdown rendering
+│   └── ui/                 # Reusable UI components
 ├── services/
 │   └── geminiService.ts    # Gemini SDK implementation & stream handling
 ├── constants.ts            # System Instructions (Prompts) & Persona definitions
-└── App.tsx                 # Routing & Layout
+├── App.tsx                 # Routing & Layout
+└── vite.config.ts          # Vite configuration
 ```
 
 ## 🤝 Contributing
