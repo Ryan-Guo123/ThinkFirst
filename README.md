@@ -113,13 +113,26 @@ This project is engineered with a focus on performance and modern web standards.
 
 
 ```text
-src/
+ThinkFirst/
 ├── components/
-│   └── Playground.tsx      # Main chat interface & Markdown rendering
+│   ├── Playground.tsx      # Main chat interface & Markdown rendering
+│   ├── Header.tsx          # Navigation header
+│   ├── Hero.tsx            # Landing page hero section
+│   ├── Section.tsx         # Reusable section layout
+│   ├── CodeBlock.tsx       # Code display component
+│   ├── Button.tsx          # Button component
+│   └── ui/                 # Animated UI components
 ├── services/
 │   └── geminiService.ts    # Gemini SDK implementation & stream handling
+├── lib/
+│   └── utils.ts            # Utility functions
 ├── constants.ts            # System Instructions (Prompts) & Persona definitions
-└── App.tsx                 # Routing & Layout
+├── types.ts                # TypeScript type definitions
+├── App.tsx                 # Main app component & routing
+├── index.tsx               # Application entry point
+├── index.html              # HTML template
+├── vite.config.ts          # Vite configuration
+└── package.json            # Dependencies & scripts
 ```
 
 ## 🤝 Contributing
