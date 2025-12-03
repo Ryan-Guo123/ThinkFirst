@@ -2,9 +2,10 @@ import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon } from "lucide-react";
+import { ArrowUp, Paperclip, Square, X, Globe, BrainCog, ChevronDown, Brain, ShieldAlert, Layout, MessageCircleQuestion, Link as LinkIcon, Mic, Loader2, StopCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PERSONAS, PersonaKey } from "../../constants";
+import { useWhisper } from "../../hooks/useWhisper";
 
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
@@ -155,6 +156,13 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const { isRecording, isTranscribing, isLoadingModel, loadingProgress, startRecording, stopRecording } = useWhisper((text) => {
+    setInput(prev => {
+        const spacer = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
+        return prev + spacer + text;
+    });
+  });
 
   React.useEffect(() => {
     if (textareaRef.current) {
@@ -372,6 +380,41 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>Attach Image</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                 <TooltipTrigger asChild>
+                    <button
+                        onClick={isRecording ? stopRecording : startRecording}
+                        disabled={isLoading || isTranscribing}
+                        className={cn(
+                            "p-2 rounded-full transition-colors relative",
+                             isRecording ? "text-red-500 bg-red-50 animate-pulse" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"
+                        )}
+                    >
+                       {isLoadingModel ? (
+                           <div className="relative w-5 h-5 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
+                              {loadingProgress !== null && (
+                                <span className="absolute -top-3 -right-3 text-[8px] bg-brand-100 text-brand-700 px-1 rounded-full font-bold">
+                                    {loadingProgress}%
+                                </span>
+                              )}
+                           </div>
+                       ) : isTranscribing ? (
+                           <Loader2 className="w-5 h-5 animate-spin text-stone-400" />
+                       ) : isRecording ? (
+                           <StopCircle className="w-5 h-5" />
+                       ) : (
+                           <Mic className="w-5 h-5" />
+                       )}
+                    </button>
+                 </TooltipTrigger>
+                 <TooltipContent>
+                     {isLoadingModel ? "Downloading Model..." :
+                      isTranscribing ? "Transcribing..." :
+                      isRecording ? "Stop Recording" : "Voice Input"}
+                 </TooltipContent>
               </Tooltip>
 
               <Tooltip>
