@@ -92,7 +92,7 @@ This project is engineered with a focus on performance and modern web standards.
 2.  **Install dependencies**
 
     ```bash
-    npm install
+    yarn install
     ```
 
 3.  **Run the development server**
